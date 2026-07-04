@@ -1,5 +1,7 @@
 # TCP-Signal Visualization App
 This project was developed and tested using Python 3.12.
+Create and activate a virtual environment.
+Install dependencies with pip install -r requirements.txt.
 ## Project goal
 The goal of this project is to develop a PySide6 desktop application for live visualization and offline inspection of multi‑channel signal data streamed via TCP from a dedicated server. The software will act as a client that connects to the existing TCP server, receives continuous data packets, and makes them accessible for analysis in an intuitive graphical user interface.
 
