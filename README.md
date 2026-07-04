@@ -1,3 +1,6 @@
+# group details:
+group 13
+Team members: Maria, Hector, Lina
 # TCP-Signal Visualization App
 This project was developed and tested using Python 3.12.
 ## Project goal
