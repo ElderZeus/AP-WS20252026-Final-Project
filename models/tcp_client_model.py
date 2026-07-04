@@ -49,35 +49,27 @@ class TcpClientModel:
         self.byte_buffer = bytearray()
         self.data_buffer = np.empty((self.channels, 0), dtype=self.dtype)
 
+        # Counts how many samples were received in total.
+        # This is used to calculate the signal time.
         self.total_samples_received = 0
 
     def connect(self):
-        """
-        Connect to the TCP server.
+        """Connect to the TCP server."""
+        if self.is_connected:
+            return
 
-        TODO:
-        1. If the client is already connected, return immediately.
-        2. Create a TCP socket.
-        3. Connect the socket to self.host and self.port.
-        4. Set the socket to non-blocking mode.
-        5. Set self.is_connected to True.
-        """
-        self.socket=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect((self.host, self.port))
+
+        # Non-blocking means recv() will not freeze the GUI if no data is available.
         self.socket.setblocking(False)
+
         self.is_connected = True
 
     def disconnect(self):
-        """
-        Close the TCP connection.
-
-        TODO:
-        1. Set self.is_connected to False.
-        2. If self.socket is not None:
-           - close the socket
-           - set self.socket to None
-        """
+        """Close the TCP connection."""
         self.is_connected = False
+
         if self.socket is not None:
             self.socket.close()
             self.socket = None
@@ -87,33 +79,21 @@ class TcpClientModel:
         Receive all currently available TCP data.
 
         TCP is a byte stream. This means one recv() call does not necessarily
-        contain exactly one packet.
-
-        Therefore:
-        1. receive raw bytes
-        2. add them to self.byte_buffer
-        3. extract complete packets from self.byte_buffer
+        contain exactly one packet. Therefore, we first collect bytes and then
+        extract complete packets of the expected size.
         """
         if not self.is_connected or self.socket is None:
             return
 
         while True:
             try:
-                # TODO:
-                # Receive up to one packet of bytes from the socket.
-                # One packet contains:
-                # channels * samples_per_packet * bytes_per_value bytes.
-                new_bytes = self.socket.recv(self.packet_size_bytes)
+                new_bytes = self.socket.recv(4096)
 
                 if not new_bytes:
                     self.disconnect()
                     return
 
-                # TODO:
-                # Add the newly received bytes to self.byte_buffer.
-                else:
-                    new_bytes = self.socket.recv(self.packet_size_bytes)
-                    self.byte_buffer.extend(new_bytes)
+                self.byte_buffer.extend(new_bytes)
 
             except BlockingIOError:
                 # No more data is available right now.
@@ -122,57 +102,23 @@ class TcpClientModel:
         self._extract_packets_from_buffer()
 
     def _extract_packets_from_buffer(self):
-        """
-        Convert complete byte packets into NumPy arrays.
-
-        One complete packet contains:
-
-            channels * samples_per_packet
-
-        values.
-
-        For this exercise:
-
-            32 * 18 = 576 values
-
-        Since the values are float64, one value needs 8 bytes:
-
-            576 * 8 = 4608 bytes per packet
-        """
+        """Convert complete byte packets into NumPy arrays."""
         packets = []
 
         while len(self.byte_buffer) >= self.packet_size_bytes:
-            # TODO:
-            # Take one complete packet from the beginning of self.byte_buffer.
             packet_bytes = self.byte_buffer[:self.packet_size_bytes]
-            
-            # TODO:
-            # Delete those bytes from self.byte_buffer,
-            # because they are now being processed.
             del self.byte_buffer[:self.packet_size_bytes]
 
-            # TODO:
-            # Convert packet_bytes into a NumPy array.
-            # Hint:
-            # np.frombuffer(..., dtype=self.dtype)
             packet = np.frombuffer(packet_bytes, dtype=self.dtype)
-
-            # TODO:
-            # Reshape the packet into:
-            # channels x samples_per_packet
             packet = packet.reshape(self.channels, self.samples_per_packet)
 
-            # TODO:
-            # Add the packet to the list of packets.
             packets.append(packet)
 
         if len(packets) == 0:
             return
 
-        # Combine all new packets into one larger data block.
         new_data = np.concatenate(packets, axis=1)
 
-        # Add the new data to the existing data buffer.
         self.data_buffer = np.concatenate(
             (self.data_buffer, new_data),
             axis=1,
@@ -210,5 +156,8 @@ class TcpClientModel:
 
         Formula:
             signal_time = total_samples_received / sampling_rate
+
+        This is equivalent to:
+            signal_time = number_of_chunks * samples_per_packet / sampling_rate
         """
         return self.total_samples_received / self.sampling_rate
