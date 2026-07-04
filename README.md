@@ -60,3 +60,5 @@ This will install packages such as numpy, scipy, matplotlib, PySide6, and vispy 
     python main.py
 
 Make sure you are inside the activated virtual environment whenever you run the application or install new dependencies.
+
+I can access, hakunamata
