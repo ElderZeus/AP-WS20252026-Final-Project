@@ -1,7 +1,5 @@
 # TCP-Signal Visualization App
 This project was developed and tested using Python 3.12.
-Create and activate a virtual environment.
-Install dependencies with pip install -r requirements.txt.
 ## Project goal
 The goal of this project is to develop a PySide6 desktop application for live visualization and offline inspection of multi‑channel signal data streamed via TCP from a dedicated server. The software will act as a client that connects to the existing TCP server, receives continuous data packets, and makes them accessible for analysis in an intuitive graphical user interface.
 
@@ -15,3 +13,47 @@ Specifically, the application aims to:
 - Follow an MVVM-style architecture to separate concerns between data models, viewmodels (application logic and state), and views (GUI and plotting).
 - Include basic error handling for common issues such as unavailable server, wrong port, lost connection, or invalid user selections, without crashing the application.
 - Deliver clear documentation and dependency management so that the application can be installed and run on a clean environment using only the listed packages.
+
+## Setup
+### Prerequisites
+Python 3.12 installed on your system.
+Git installed to clone the repository.
+1. Clone the repository
+
+    git clone <your-repo-url>
+    cd <your-repo-folder>
+
+2. Create a virtual environment
+
+On Linux/macOS:
+
+    python3 -m venv .venv
+
+On Windows:
+
+    python -m venv .venv
+
+This creates a local virtual environment in the .venv folder (not tracked by Git).
+3. Activate the virtual environment
+
+On Linux/macOS:
+
+    source .venv/bin/activate
+
+On Windows (PowerShell):
+
+    .venv\Scripts\Activate.ps1
+
+After activation, your shell prompt should show (.venv) indicating that you are using the project’s environment.
+4. Install dependencies
+
+With the virtual environment activated, install all required packages:
+
+    pip install -r requirements.txt
+
+This will install packages such as numpy, scipy, matplotlib, PySide6, and vispy that are needed for the application.
+5. Run the application
+
+    python main.py
+
+Make sure you are inside the activated virtual environment whenever you run the application or install new dependencies.
