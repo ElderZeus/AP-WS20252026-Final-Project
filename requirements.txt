@@ -3,4 +3,3 @@ scipy
 matplotlib
 pyside6
 vispy
-pyside6.QtWidgets
